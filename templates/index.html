@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h2 {
+            text-align: center;
+            animation: slideDown 1s ease-in-out;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border 0.3s ease;
+        }
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>User Information Form</h2>
+        <form id="userForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <span class="error-message" id="nameError">Name is required.</span>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <span class="error-message" id="emailError">Please enter a valid email address.</span>
+
+            <label for="mobile">Mobile Number:</label>
+            <input type="text" id="mobile" name="mobile" required>
+            <span class="error-message" id="mobileError">Please enter a valid 10-digit mobile number.</span>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent default form submission
+
+            // Get form input values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+
+            let valid = true;
+
+            // Name validation
+            if (!name) {
+                document.getElementById('nameError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('nameError').style.display = 'none';
+            }
+
+            // Email validation (using simple regex)
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById('emailError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            // Mobile number validation (check if it is 10 digits)
+            const mobilePattern = /^\d{10}$/;
+            if (!mobilePattern.test(mobile)) {
+                document.getElementById('mobileError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('mobileError').style.display = 'none';
+            }
+
+            // If all inputs are valid, send data to Flask backend
+            if (valid) {
+                const userData = {
+                    name: name,
+                    email: email,
+                    mobile: mobile
+                };
+
+                // Send data to Flask backend
+                fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);  // Display success message
+                    document.getElementById('userForm').reset();  // Clear form fields
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
